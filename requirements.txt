@@ -1,0 +1,6 @@
+nltk
+tqdm
+ipython
+jupyter
+jupyterlab
+sentencepiece
