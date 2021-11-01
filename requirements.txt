@@ -4,4 +4,5 @@ ipython
 jupyter
 jupyterlab
 sentencepiece
-dvc
+dvc[s3]
+awscli

@@ -11,10 +11,17 @@ LOG_LEVEL ?= INFO
 
 .PHONY: docker docker-push docker-pull enter enter-root
 
-corpus:
-		dvc get git@github.com:TeHikuMedia/putunga-korero.git corpus/kupu-tokau -o ../corpus/kupu-tokau
-		dvc get git@github.com:TeHikuMedia/putunga-korero.git corpus/tmoa-tki -o ../corpus/tmoa-tki
-		dvc get git@github.com:TeHikuMedia/putunga-korero.git corpus/mclean-papers -o ../corpus/mclean-papers
+CORPORA ?= kupu-tokau tmoa-tki mclean-papers
+corpus: $(addprefix ../corpus/,$(CORPORA))
+
+../corpus/kupu-tokau:
+		dvc get git@github.com:TeHikuMedia/putunga-korero.git corpus/kupu-tokau -o $@
+
+../corpus/tmoa-tki:
+		dvc get git@github.com:TeHikuMedia/putunga-korero.git corpus/tmoa-tki -o $@
+
+../corpus/mclean-papers:
+		dvc get git@github.com:TeHikuMedia/putunga-korero.git corpus/mclean-papers -o $@
 
 train: models/full_corpus.model models/sample_corpus.model
 models/full_corpus.model: full_corpus.sentences
