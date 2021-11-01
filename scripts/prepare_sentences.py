@@ -2,6 +2,7 @@ import os
 import click
 import logging
 import itertools as it
+from random import shuffle
 from utils import multicore_apply
 from nltk.tokenize import sent_tokenize
 
@@ -20,8 +21,9 @@ def get_sentences(filepath):
 @click.command()
 @click.option("--corpus_dir", default="INFO", help="Corpus directory")
 @click.option("--sentence_file", help="Path to save corpus sentences")
+@click.option("--sample_size", type=int,  help="Number of sentences to include in sample corpus")
 @click.option("--log_level", default="INFO", help="Log level (default: INFO)")
-def main(corpus_dir, sentence_file, log_level):
+def main(corpus_dir, sentence_file, sample_size, log_level):
     '''
     Given a corpus directory, prepares a one-sentence-per-line raw corpus file
     '''
@@ -41,6 +43,11 @@ def main(corpus_dir, sentence_file, log_level):
     sentences = it.chain.from_iterable(
         multicore_apply(file_list, get_sentences)
     )
+
+    if sample_size:
+        sentences = list(sentences)
+        shuffle(sentences)
+        sentences = sentences[:sample_size]
 
     with open(sentence_file, 'w') as f:
         for sentence in sentences:

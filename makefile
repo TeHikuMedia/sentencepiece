@@ -11,13 +11,22 @@ LOG_LEVEL ?= INFO
 
 .PHONY: docker docker-push docker-pull enter enter-root
 
-MODEL_NAME ?= full_corpus_model
-train: models/$(MODEL_NAME)
-models/$(MODEL_NAME): corpus.sentences
-	$(RUN) spm_train --input=corpus.sentences --model_prefix=models/$(MODEL_NAME) --vocab_size=8000 --character_coverage=1.0 --model_type=unigram
+train: models/full_corpus.model models/sample_corpus.model
+models/full_corpus.model: full_corpus.sentences
+	$(RUN) spm_train --input=$< --model_prefix=models/full_corpus --vocab_size=8000 --character_coverage=1.0 --model_type=unigram
 
-corpus.sentences: scripts/prepare_sentences.py
+models/sample_corpus.model: sample_corpus.sentences
+	$(RUN) spm_train --input=$< --model_prefix=models/sample_corpus --vocab_size=1000 --character_coverage=1.0 --model_type=unigram
+
+full_corpus.sentences: scripts/prepare_sentences.py
 	$(RUN) python3 $< --corpus_dir ../corpus --sentence_file $@ --log_level $(LOG_LEVEL)
+
+SAMPLE_SIZE ?= 1000
+sample_corpus.sentences: scripts/prepare_sentences.py
+	$(RUN) python3 $< --corpus_dir ../corpus --sentence_file $@ --sample_size $(SAMPLE_SIZE) --log_level $(LOG_LEVEL)
+
+clean:
+	rm -rf models/* *.sentences
 
 JUPYTER_PASSWORD ?= jupyter
 JUPYTER_PORT ?= 8888
