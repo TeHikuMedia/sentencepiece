@@ -7,7 +7,7 @@ mkdir models
 make corpus -j
 
 # Train the sentencepiece model
-make models/sample_corpus.model
+make models/full_corpus.model
 
 # Send text corpus to /output
 cp -r ../corpus /output
