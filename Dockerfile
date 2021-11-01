@@ -23,7 +23,7 @@ ENV HOME /home/kaimahi
 
 # Install apt packages
 RUN apt update
-RUN apt install -y cmake build-essential pkg-config libgoogle-perftools-dev
+RUN apt install -y cmake build-essential pkg-config libgoogle-perftools-dev git
 
 COPY . /home/kaimahi/language-models/sentencepiece
 RUN mkdir /home/kaimahi/language-models/sentencepiece/build

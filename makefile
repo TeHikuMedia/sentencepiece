@@ -1,6 +1,6 @@
 REPO_NAME := $(shell basename `git rev-parse --show-toplevel` | tr '[:upper:]' '[:lower:]')
 GIT_TAG ?= $(shell git log --oneline | head -n1 | awk '{print $$1}')
-DOCKER_REGISTRY := mathematiguy
+DOCKER_REGISTRY := 473856431958.dkr.ecr.ap-southeast-2.amazonaws.com
 IMAGE := $(DOCKER_REGISTRY)/$(REPO_NAME)
 HAS_DOCKER ?= $(shell which docker)
 RUN ?= $(if $(HAS_DOCKER), docker run $(DOCKER_ARGS) --rm -v $$(pwd)/..:/home/kaimahi/language-models -w /home/kaimahi/language-models/$(REPO_NAME) -u $(UID):$(GID) $(IMAGE))
@@ -43,13 +43,19 @@ jupyter:
 			python3 -c \
 			"from IPython.lib import passwd; print(passwd('$(JUPYTER_PASSWORD)'))")
 
-docker:
-	docker build $(DOCKER_ARGS) --tag $(IMAGE):$(GIT_TAG) .
-	docker tag $(IMAGE):$(GIT_TAG) $(IMAGE):latest
+.PHONY: docker-login
+docker-login: PROFILE=default
+docker-login:
+	# First run `$$aws configure` to get your AWS credentials in the right place
+	docker login -u AWS --password \
+	$$(aws ecr get-login-password --profile $(PROFILE) --region ap-southeast-2) \
+	"$(DOCKER_REGISTRY)"
 
-docker-push:
-	docker push $(IMAGE):$(GIT_TAG)
-	docker push $(IMAGE):latest
+docker: docker-login
+	docker build $(DOCKER_ARGS) -t $(IMAGE) .
+	docker tag $(IMAGE) $(IMAGE):$(GIT_TAG) && docker push $(IMAGE):$(GIT_TAG)
+	docker tag $(IMAGE) $(IMAGE):latest && docker push $(IMAGE):latest
+	docker push $(IMAGE)
 
 docker-pull:
 	docker pull $(IMAGE):$(GIT_TAG)
