@@ -11,6 +11,11 @@ LOG_LEVEL ?= INFO
 
 .PHONY: docker docker-push docker-pull enter enter-root
 
+corpus:
+		dvc get git@github.com:TeHikuMedia/putunga-korero.git corpus/kupu-tokau -o ../corpus/kupu-tokau
+		dvc get git@github.com:TeHikuMedia/putunga-korero.git corpus/tmoa-tki -o ../corpus/tmoa-tki
+		dvc get git@github.com:TeHikuMedia/putunga-korero.git corpus/mclean-papers -o ../corpus/mclean-papers
+
 train: models/full_corpus.model models/sample_corpus.model
 models/full_corpus.model: full_corpus.sentences
 	$(RUN) spm_train --input=$< --model_prefix=models/full_corpus --vocab_size=8000 --character_coverage=1.0 --model_type=unigram
