@@ -35,7 +35,7 @@ $(MODEL_DIR):
 	mkdir -p $@
 
 $(MODEL_DIR)/$(MODEL_NAME).model: $(MODEL_DIR)/$(MODEL_NAME).sentences $(MODEL_DIR)
-	$(RUN) spm_train --input=$< --model_prefix=$(MODEL_DIR) --vocab_size=$(VOCAB_SIZE) --character_coverage=1.0 --model_type=unigram
+	$(RUN) spm_train --input=$< --model_prefix=$(MODEL_DIR)/$(MODEL_NAME) --vocab_size=$(VOCAB_SIZE) --character_coverage=1.0 --model_type=unigram
 
 $(MODEL_DIR)/$(MODEL_NAME).sentences: scripts/prepare_sentences.py $(MODEL_DIR) $(CORPORA_DIRS)
 	$(RUN) python3 $< --corpus_dir ../corpus --sentence_file $@ --sample_size $(SAMPLE_SIZE) --log_level $(LOG_LEVEL)
