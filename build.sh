@@ -1,13 +1,6 @@
 set -ex
 
-# Create models directory
-mkdir models
-
-# Download the text corpus
-make corpus -j
-
-# Train the sentencepiece model
-make models/full_corpus.model
+make train
 
 # Send text corpus to /output
 cp -r ../corpus /output

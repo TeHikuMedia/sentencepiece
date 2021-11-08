@@ -9,10 +9,18 @@ GID ?= kaimahi
 DOCKER_ARGS ?=
 LOG_LEVEL ?= INFO
 
+MODEL_NAME ?= sample
+MODEL_DIR ?= models/$(MODEL_NAME)
+VOCAB_SIZE ?= 1000
+SAMPLE_SIZE ?= 1000
+
 .PHONY: docker docker-push docker-pull enter enter-root
 
+train: $(MODEL_DIR)/$(MODEL_NAME).model
+
 CORPORA ?= kupu-tokau tmoa-tki mclean-papers
-corpus: $(addprefix ../corpus/,$(CORPORA))
+CORPORA_DIRS ?= $(addprefix ../corpus/,$(CORPORA))
+corpus: $(CORPORA_DIRS)
 
 ../corpus/kupu-tokau:
 		dvc get git@github.com:TeHikuMedia/putunga-korero.git corpus/kupu-tokau -o $@
@@ -23,22 +31,17 @@ corpus: $(addprefix ../corpus/,$(CORPORA))
 ../corpus/mclean-papers:
 		dvc get git@github.com:TeHikuMedia/putunga-korero.git corpus/mclean-papers -o $@
 
-train: models/full_corpus.model models/sample_corpus.model
-models/full_corpus.model: full_corpus.sentences
-	$(RUN) spm_train --input=$< --model_prefix=models/full_corpus --vocab_size=8000 --character_coverage=1.0 --model_type=unigram
+$(MODEL_DIR):
+	mkdir -p $@
 
-models/sample_corpus.model: sample_corpus.sentences
-	$(RUN) spm_train --input=$< --model_prefix=models/sample_corpus --vocab_size=1000 --character_coverage=1.0 --model_type=unigram
+$(MODEL_DIR)/$(MODEL_NAME).model: $(MODEL_DIR)/$(MODEL_NAME).sentences $(MODEL_DIR)
+	$(RUN) spm_train --input=$< --model_prefix=$(MODEL_DIR) --vocab_size=$(VOCAB_SIZE) --character_coverage=1.0 --model_type=unigram
 
-full_corpus.sentences: scripts/prepare_sentences.py
-	$(RUN) python3 $< --corpus_dir ../corpus --sentence_file $@ --log_level $(LOG_LEVEL)
-
-SAMPLE_SIZE ?= 1000
-sample_corpus.sentences: scripts/prepare_sentences.py
+$(MODEL_DIR)/$(MODEL_NAME).sentences: scripts/prepare_sentences.py $(MODEL_DIR) $(CORPORA_DIRS)
 	$(RUN) python3 $< --corpus_dir ../corpus --sentence_file $@ --sample_size $(SAMPLE_SIZE) --log_level $(LOG_LEVEL)
 
 clean:
-	rm -rf models/* *.sentences
+	rm -rf models/*
 
 JUPYTER_PASSWORD ?= jupyter
 JUPYTER_PORT ?= 8888
