@@ -6,5 +6,4 @@ make train
 cp -r ../corpus /output
 
 # Send model to /output
-cp *.sentences /output
 cp -r models/ /output
