@@ -6,3 +6,4 @@ jupyterlab
 sentencepiece
 dvc[s3]
 awscli
+click
