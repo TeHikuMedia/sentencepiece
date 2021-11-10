@@ -43,3 +43,5 @@ RUN pip3 install -r /root/requirements.txt
 
 ENV NLTK_DATA /nltk_data
 RUN python3 -c "import nltk;nltk.download('punkt', download_dir='$NLTK_DATA')"
+
+ENV GREETING hello!
